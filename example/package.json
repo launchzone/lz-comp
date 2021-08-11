@@ -1,0 +1,55 @@
+{
+  "name": "dapp-comp-example",
+  "homepage": ".",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "watch": "node ../node_modules/react-scripts/bin/react-scripts.js start",
+    "start": "node ../node_modules/react-scripts/bin/react-scripts.js start",
+    "build": "node ../node_modules/react-scripts/bin/react-scripts.js build",
+    "test": "node ../node_modules/react-scripts/bin/react-scripts.js test",
+    "eject": "node ../node_modules/react-scripts/bin/react-scripts.js eject"
+  },
+  "dependencies": {
+    "@testing-library/jest-dom": "link:../node_modules/@testing-library/jest-dom",
+    "@testing-library/react": "link:../node_modules/@testing-library/react",
+    "@testing-library/user-event": "link:../node_modules/@testing-library/user-event",
+    "@types/jest": "link:../node_modules/@types/jest",
+    "@types/node": "link:../node_modules/@types/node",
+    "@types/react": "link:../node_modules/@types/react",
+    "@types/react-dom": "link:../node_modules/@types/react-dom",
+    "@web3-react/authereum-connector": "^6.2.0",
+    "@web3-react/core": "^6.1.9",
+    "@web3-react/injected-connector": "^6.0.7",
+    "@web3-react/network-connector": "^6.1.9",
+    "@web3-react/torus-connector": "^6.1.9",
+    "@web3-react/walletconnect-connector": "^6.2.4",
+    "@web3-react/walletlink-connector": "^6.2.3",
+    "node-sass": "link:../node_modules/node-sass",
+    "react": "link:../node_modules/react",
+    "react-dom": "link:../node_modules/react-dom",
+    "react-scripts": "link:../node_modules/react-scripts",
+    "dapp-comp": "link:..",
+    "typescript": "link:../node_modules/typescript",
+    "sass-loader": "link:../node_modules/scss-loader",
+    "web3-react-modal": "https://github.com/ezDeFi/web3-react-modal.git#implement-wallet-modal"
+  },
+  "devDependencies": {
+    "@babel/plugin-syntax-object-rest-spread": "^7.8.3"
+  },
+  "eslintConfig": {
+    "extends": "react-app"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  }
+}
