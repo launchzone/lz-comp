@@ -1,23 +1,25 @@
-import React from 'react'
+import { DappPage } from './pages/DappPage'
+import { SubPage1 } from './pages/SubPage1'
+import { SubPage2 } from './pages/SubPage2'
 
-export default ({
-  theme,
-  useWeb3React,
-}: {
-  theme: string,
-  useWeb3React: any,
-}) => {
-  const { account } = useWeb3React();
+const menuConfig = [
+  {
+    name: 'Dapp',
+    page: DappPage,
+    path: '/',
+    children: [
+      {
+        name: 'Sub menu 1',
+        page: SubPage1,
+        path: '/sub-1'
+      },
+      {
+        name: 'Sub menu 2',
+        page: SubPage2,
+        path: '/sub-2'
+      }
+    ]
+  }
+]
 
-  return <div
-    style={{
-      width: '100%',
-      height: '100%',
-      background: theme === 'dark' ? '#000000' : '#E5E5E5',
-      color: theme === 'dark' ? '#FFFFFF' : '#000000'
-    }}>
-    <p>
-      Account: {account}
-    </p>
-  </div>
-}
+export { DappPage, SubPage1, SubPage2, menuConfig }
