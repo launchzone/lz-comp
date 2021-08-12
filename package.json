@@ -11,6 +11,7 @@
     "node": ">=10"
   },
   "scripts": {
+    "mockup": "cd mockup && yarn watch",
     "build": "microbundle-crl --no-compress --format modern,cjs",
     "start": "microbundle-crl watch --no-compress --format modern,cjs",
     "watch": "microbundle-crl watch --no-compress --format modern,cjs",
