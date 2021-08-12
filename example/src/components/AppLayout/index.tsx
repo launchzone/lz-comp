@@ -9,8 +9,11 @@ import connectors from '../../utils/connectors'
 import {UserWalletModal} from "../UserWalletModal";
 import {shortenAddressString, weiToNumber} from "../../utils/helpers";
 
+const LS_CONNECTOR = 'web3connector'
+const LS_THEME = 'theme'
+
 export const AppLayout = (props: any) => {
-    const {activate, active, account,deactivate,  chainId, library} = useWeb3React();
+    const { activate, active, account, deactivate,  chainId, library } = useWeb3React();
     const [balance, setBalance] = useState<any>();
     const [visibleWalletModal, setVisibleWalletModal] = useState<any>();
     const [visibleUserWalletModal, setVisibleUserWalletModal] = useState<any>();
@@ -18,8 +21,20 @@ export const AppLayout = (props: any) => {
     const Component = props.component;
 
     useEffect(() => {
-        let initTheme = localStorage.getItem('theme')
+        const initTheme = localStorage.getItem(LS_THEME)
         setTheme(initTheme ? initTheme : 'light')
+    }, [])
+
+    useEffect(() => {
+        const initConnector = localStorage.getItem(LS_CONNECTOR)
+        if (initConnector) {
+            const connector = Object.values(connectors)
+                .map(({connector}) => connector)
+                .find(connector => connector?.constructor?.name == initConnector)
+            if (connector) {
+                activate(connector)
+            }
+        }
     }, [])
 
     useEffect(() => {
@@ -66,7 +81,7 @@ export const AppLayout = (props: any) => {
                   type='checkbox'
                     onChange={(e) => {
                       let themeToSet = e.target.checked ? 'dark' : 'light'
-                      localStorage.setItem('theme', themeToSet)
+                      localStorage.setItem(LS_THEME, themeToSet)
                       setTheme(themeToSet)
                     }}
                   checked={theme === 'dark'}
@@ -84,12 +99,19 @@ export const AppLayout = (props: any) => {
             providerOptions={connectors}
             onConnect={(connector: any) => {
                 activate(connector)
+                const name = connector?.constructor?.name
+                if (name) {
+                    localStorage.setItem(LS_CONNECTOR, name)
+                }
             }}
         />
         <UserWalletModal
             visible={visibleUserWalletModal}
             setVisible={setVisibleUserWalletModal}
-            deactivate={deactivate}
+            deactivate={() => {
+                deactivate()
+                localStorage.removeItem(LS_CONNECTOR)
+            }}
             balance={balance ? balance : ''}
             account={account ? account : ''}
         />
