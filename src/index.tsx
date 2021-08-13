@@ -1,25 +1,50 @@
-import { DappPage } from './pages/DappPage'
-import { SubPage1 } from './pages/SubPage1'
-import { SubPage2 } from './pages/SubPage2'
+import React, { useEffect } from 'react'
 
 const menuConfig = [
   {
-    name: 'Dapp',
-    page: DappPage,
-    path: '/',
-    children: [
-      {
-        name: 'Sub menu 1',
-        page: SubPage1,
-        path: '/sub-1'
-      },
-      {
-        name: 'Sub menu 2',
-        page: SubPage2,
-        path: '/sub-2'
-      }
-    ]
+    name: 'Sub menu 1',
+    path: '/sub-1'
+  },
+  {
+    name: 'Sub menu 2',
+    path: '/sub-2'
   }
 ]
+const DAPP_NAME = 'Dapp'
 
-export { DappPage, SubPage1, SubPage2, menuConfig }
+export default ({
+  theme,
+  useWeb3React,
+  selectedMenu,
+  initSubMenu,
+  initDappName
+}: {
+  theme: string
+  useWeb3React: any
+  selectedMenu: any
+  initSubMenu?: any
+  initDappName?: any
+}) => {
+  const { account } = useWeb3React()
+  const { selectedPath } = selectedMenu()
+
+  useEffect(() => {
+    initSubMenu(menuConfig)
+    initDappName(DAPP_NAME)
+  }, [])
+
+  return (
+    <div
+      style={{
+        width: '100%',
+        height: '100%',
+        background: theme === 'dark' ? '#000000' : '#E5E5E5',
+        color: theme === 'dark' ? '#FFFFFF' : '#000000'
+      }}
+    >
+      <p>Dapp page</p>
+      <p>selected path: {selectedPath}</p>
+      <p>Account: {account}</p>
+    </div>
+  )
+}

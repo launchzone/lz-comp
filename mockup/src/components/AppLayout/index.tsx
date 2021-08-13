@@ -8,38 +8,22 @@ import { Web3ReactModal } from 'web3-react-modal'
 import connectors from '../../utils/connectors'
 import { UserWalletModal } from '../UserWalletModal'
 import { shortenAddressString, weiToNumber } from '../../utils/helpers'
-import { Route, useLocation } from 'react-router-dom'
 import { Menu } from '../Menu'
+import { useLocation } from 'react-router-dom'
 
 const LS_CONNECTOR = 'web3connector'
 const LS_THEME = 'theme'
-
-const mergerMenu = (menus: any, result: any[] = []): any => {
-    for (const i in menus) {
-        if (menus[i].children && menus[i].children.length > 0) {
-            result.push({ ...menus[i], children: [] })
-            return mergerMenu(menus[i].children, result)
-        } else {
-            result.push(menus[i])
-        }
-    }
-
-    return result
-}
 
 export const AppLayout = (props: any) => {
     const { activate, active, account, deactivate, chainId, library } = useWeb3React()
     const [balance, setBalance] = useState<any>()
     const [visibleWalletModal, setVisibleWalletModal] = useState<any>()
     const [visibleUserWalletModal, setVisibleUserWalletModal] = useState<any>()
-    const [pages, setPages] = useState<any>([])
     const [theme, setTheme] = useState<any>()
+    const [subMenu, setSubMenu] = useState<any>([])
+    const [dappName, setDappName] = useState<any>([])
     const location = useLocation()
-
-
-    useEffect(() => {
-        setPages(mergerMenu(props.menuConfig))
-    }, [props.menus])
+    const Component = props.component
 
     useEffect(() => {
         const initTheme = localStorage.getItem(LS_THEME)
@@ -97,7 +81,7 @@ export const AppLayout = (props: any) => {
                     )
                 }
             </div>
-            <Menu menuConfig={props.menuConfig}/>
+            <Menu menuConfig={[{name: dappName, path: '/', children: subMenu}]}/>
             <div className='swith-theme'>
                 <span>Dark Theme</span>
                 <input
@@ -113,24 +97,21 @@ export const AppLayout = (props: any) => {
         </aside>
         <section className='layout'>
             <main className='main container'>
-                {
-                    pages && pages.map((page: any, key: number) => {
-                        if(!page.page) return ''
-                        const Component = page.page
-                        return <Route path={page.path} exact key={key}>
-                            <Component
-                                theme={theme}
-                                useWeb3React={useWeb3React}
-                                isSelected={page.path === location.pathname}
-                                selectSubMenu={() => {
-                                    if (page.path === location.pathname) {
-                                        console.log('select ' + page.name)
-                                    }
-                                }}
-                            />
-                        </Route>
-                    })
-                }
+                <Component
+                    theme={theme}
+                    useWeb3React={useWeb3React}
+                    initSubMenu={(initSubMenu: any) => {
+                        setSubMenu(initSubMenu)
+                    }}
+                    initDappName={(dappName: any) => {
+                        setDappName(dappName)
+                    }}
+                    selectedMenu={() => {
+                        return {
+                            selectedPath: location.pathname
+                        }
+                    }}
+                />
             </main>
         </section>
         <Web3ReactModal
