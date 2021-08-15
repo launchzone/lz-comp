@@ -46,7 +46,7 @@
     }
 
     .item {
-      padding: 1.3rem 0 1.3rem 1rem;
+      padding: 1.3rem 0 1.3rem 0;
       transition: all .2s;
       list-style-type: none;
 
@@ -59,6 +59,7 @@
         text-decoration: none;
         color: $color-white;
         padding: .5rem 2rem;
+        width: 100%;
         @include respond(phone) {
           padding-left: 0;
         }
@@ -83,15 +84,15 @@
       }
 
       &.active {
-        & > a::before {
+        & > a > span::before {
           content: '';
           background: linear-gradient(270deg, #96CF24 10.53%, #5AA62B 100%);
           position: absolute;
           height: .8rem;
-          width: 55%;
-          top: .5rem;
-          left: 22.5%;
-          z-index: 1;
+          width: 80%;
+          top: .1rem;
+          left: 10%;
+          z-index: -1;
 
           @include respond(phone) {
             left: 0;
@@ -100,6 +101,11 @@
         }
       }
     }
+  }
+
+  .menu.sub-menu {
+    background: $color-grey;
+    padding-left: 1rem;
   }
 
   .connect-wallet {

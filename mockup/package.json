@@ -28,6 +28,7 @@
     "node-sass": "link:../node_modules/node-sass",
     "react": "link:../node_modules/react",
     "react-dom": "link:../node_modules/react-dom",
+    "react-router-dom": "^5.2.0",
     "react-scripts": "link:../node_modules/react-scripts",
     "dapp-comp": "link:..",
     "typescript": "link:../node_modules/typescript",
@@ -35,7 +36,8 @@
     "web3-react-modal": "https://github.com/ezDeFi/web3-react-modal.git#implement-wallet-modal"
   },
   "devDependencies": {
-    "@babel/plugin-syntax-object-rest-spread": "^7.8.3"
+    "@babel/plugin-syntax-object-rest-spread": "^7.8.3",
+    "@types/react-router-dom": "^5.1.7"
   },
   "eslintConfig": {
     "extends": "react-app"
