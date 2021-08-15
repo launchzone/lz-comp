@@ -20,8 +20,7 @@ export const AppLayout = (props: any) => {
     const [visibleWalletModal, setVisibleWalletModal] = useState<any>()
     const [visibleUserWalletModal, setVisibleUserWalletModal] = useState<any>()
     const [theme, setTheme] = useState<any>()
-    const [subMenu, setSubMenu] = useState<any>([])
-    const [dappName, setDappName] = useState<any>([])
+    const [dapp, configDapp] = useState<any>([])
     const location = useLocation()
     const Component = props.component
 
@@ -81,7 +80,7 @@ export const AppLayout = (props: any) => {
                     )
                 }
             </div>
-            <Menu menuConfig={[{name: dappName, path: '/', children: subMenu}]}/>
+            <Menu menuConfig={[dapp]}/>
             <div className='swith-theme'>
                 <span>Dark Theme</span>
                 <input
@@ -100,17 +99,8 @@ export const AppLayout = (props: any) => {
                 <Component
                     theme={theme}
                     useWeb3React={useWeb3React}
-                    initSubMenu={(initSubMenu: any) => {
-                        setSubMenu(initSubMenu)
-                    }}
-                    initDappName={(dappName: any) => {
-                        setDappName(dappName)
-                    }}
-                    selectedMenu={() => {
-                        return {
-                            selectedPath: location.pathname
-                        }
-                    }}
+                    configDapp={configDapp}
+                    useSubPage={() => location.pathname}
                 />
             </main>
         </section>

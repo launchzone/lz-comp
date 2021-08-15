@@ -1,36 +1,33 @@
 import React, { useEffect } from 'react'
 
-const menuConfig = [
-  {
-    name: 'Sub menu 1',
-    path: '/sub-1'
-  },
-  {
-    name: 'Sub menu 2',
-    path: '/sub-2'
-  }
-]
-const DAPP_NAME = 'Dapp'
+const DAPP_CONFIG = {
+  name: 'Dapp Name',
+  path: '/dapp',
+  children: [{
+    name: 'Sub Menu 1',
+    path: '/dapp/sub1'
+  }, {
+    name: 'Sub Menu 2',
+    path: '/dapp/sub2'
+  }],
+}
 
 export default ({
   theme,
   useWeb3React,
-  selectedMenu,
-  initSubMenu,
-  initDappName
+  useSubPage,
+  configDapp,
 }: {
   theme: string
   useWeb3React: any
-  selectedMenu: any
-  initSubMenu?: any
-  initDappName?: any
+  useSubPage: any
+  configDapp?: any
 }) => {
   const { account } = useWeb3React()
-  const { selectedPath } = selectedMenu()
+  const subPage = useSubPage()
 
   useEffect(() => {
-    initSubMenu(menuConfig)
-    initDappName(DAPP_NAME)
+    configDapp(DAPP_CONFIG)
   }, [])
 
   return (
@@ -42,8 +39,8 @@ export default ({
         color: theme === 'dark' ? '#FFFFFF' : '#000000'
       }}
     >
-      <p>Dapp page</p>
-      <p>selected path: {selectedPath}</p>
+      <p>{DAPP_CONFIG.name}</p>
+      <p>Path: {subPage}</p>
       <p>Account: {account}</p>
     </div>
   )
