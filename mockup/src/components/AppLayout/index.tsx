@@ -20,9 +20,8 @@ export const AppLayout = (props: any) => {
     const [visibleWalletModal, setVisibleWalletModal] = useState<any>()
     const [visibleUserWalletModal, setVisibleUserWalletModal] = useState<any>()
     const [theme, setTheme] = useState<any>()
-    const [dapp, configDapp] = useState<any>([])
     const location = useLocation()
-    const Component = props.component
+    const {configs, Dapp} = props.dapp
 
     useEffect(() => {
         const initTheme = localStorage.getItem(LS_THEME)
@@ -80,7 +79,7 @@ export const AppLayout = (props: any) => {
                     )
                 }
             </div>
-            <Menu menuConfig={[dapp]}/>
+            <Menu menuConfig={[configs]}/>
             <div className='swith-theme'>
                 <span>Dark Theme</span>
                 <input
@@ -96,10 +95,9 @@ export const AppLayout = (props: any) => {
         </aside>
         <section className='layout'>
             <main className='main container'>
-                <Component
+                <Dapp
                     theme={theme}
                     useWeb3React={useWeb3React}
-                    configDapp={configDapp}
                     useSubPage={() => location.pathname}
                 />
             </main>

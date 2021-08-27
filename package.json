@@ -4,8 +4,8 @@
   "author": "LaunchZone",
   "license": "MIT",
   "repository": "ezDeFi/lz-comp",
-  "main": "dist/index.js",
-  "module": "dist/index.modern.js",
+  "main": "/Users/hvh/Documents/Projects/ezdefi/lz-interface/node_modules/lz-comp/dist/index.js",
+  "module": "/Users/hvh/Documents/Projects/ezdefi/lz-interface/node_modules/lz-comp/dist/index.modern.js",
   "source": "src/index.tsx",
   "engines": {
     "node": ">=10"

@@ -1,34 +1,33 @@
-import React, { useEffect } from 'react'
+import React from 'react'
+import { ReactComponent as Icon } from './copy.svg';
 
-const DAPP_CONFIG = {
-  name: 'Dapp Name',
+const configs = {
+  icon: Icon,
+  name: 'Dapp',
   path: '/dapp',
-  children: [{
-    name: 'Sub Menu 1',
-    path: '/dapp/sub1'
-  }, {
-    name: 'Sub Menu 2',
-    path: '/dapp/sub2'
-  }],
+  children: [
+    {
+      name: 'Sub Menu 1',
+      path: '/dapp/sub1'
+    },
+    {
+      name: 'Sub Menu 2',
+      path: '/dapp/sub2'
+    }
+  ]
 }
 
-export default ({
+const Dapp = ({
   theme,
   useWeb3React,
   useSubPage,
-  configDapp,
 }: {
   theme: string
   useWeb3React: any
   useSubPage: any
-  configDapp?: any
 }) => {
   const { account } = useWeb3React()
   const subPage = useSubPage()
-
-  useEffect(() => {
-    configDapp(DAPP_CONFIG)
-  }, [])
 
   return (
     <div
@@ -39,9 +38,14 @@ export default ({
         color: theme === 'dark' ? '#FFFFFF' : '#000000'
       }}
     >
-      <p>{DAPP_CONFIG.name}</p>
+      <p>{configs.name}</p>
       <p>Path: {subPage}</p>
       <p>Account: {account}</p>
     </div>
   )
+}
+
+export default {
+  configs,
+  Dapp,
 }
