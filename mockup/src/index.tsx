@@ -17,7 +17,7 @@ ReactDOM.render(
   <React.StrictMode>
     <Web3ReactProvider getLibrary={getLibrary}>
       <Router>
-        <AppLayout component={DappComp} />
+        <AppLayout dapp={DappComp} />
       </Router>
     </Web3ReactProvider>
   </React.StrictMode>
