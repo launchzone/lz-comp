@@ -5,19 +5,16 @@ const configs = {
   icon: Icon,
   name: 'Dapp',
   path: '/dapp',
-  children: [
-    {
-      name: 'Sub Menu 1',
-      path: '/dapp/sub1'
-    },
-    {
-      name: 'Sub Menu 2',
-      path: '/dapp/sub2'
-    }
-  ]
+  children: [{
+    name: 'Sub Menu 1',
+    path: '/dapp/sub1'
+  }, {
+    name: 'Sub Menu 2',
+    path: '/dapp/sub2'
+  }],
 }
 
-const Dapp = ({
+const Component = ({
   theme,
   useWeb3React,
   useSubPage,
@@ -47,5 +44,5 @@ const Dapp = ({
 
 export default {
   configs,
-  Dapp,
+  Component,
 }
