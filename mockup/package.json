@@ -33,7 +33,7 @@
     "dapp-comp": "link:..",
     "typescript": "link:../node_modules/typescript",
     "sass-loader": "link:../node_modules/scss-loader",
-    "web3-react-modal": "https://github.com/ezDeFi/web3-react-modal.git#implement-wallet-modal"
+    "web3-react-modal": "https://github.com/ezDeFi/web3-react-modal.git"
   },
   "devDependencies": {
     "@babel/plugin-syntax-object-rest-spread": "^7.8.3",
