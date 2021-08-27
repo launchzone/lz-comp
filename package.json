@@ -11,11 +11,12 @@
     "node": ">=10"
   },
   "scripts": {
-    "mockup": "cd mockup && yarn watch",
-    "build": "microbundle-crl --no-compress --format modern,cjs",
-    "start": "microbundle-crl watch --no-compress --format modern,cjs",
-    "watch": "microbundle-crl watch --no-compress --format modern,cjs",
-    "prepare": "run-s build",
+    "mockup:watch": "cd mockup && run-s watch",
+    "mockup:build": "cd mockup && run-s build",
+    "build": "microbundle-crl --format modern,cjs --css-modules false",
+    "start": "microbundle-crl --format modern,cjs --css-modules false --no-compress watch",
+    "watch": "microbundle-crl --format modern,cjs --css-modules false --no-compress watch",
+    "prepare": "cd mockup && yarn",
     "test": "run-s test:unit test:lint test:build",
     "test:build": "run-s build",
     "test:lint": "eslint .",
