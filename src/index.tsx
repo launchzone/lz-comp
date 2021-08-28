@@ -1,8 +1,18 @@
 import React from 'react'
-import { ReactComponent as Icon } from './copy.svg';
+import ReactDOMServer from 'react-dom/server'
+import { ReactComponent as Icon } from './icon.svg'
+
+const svgText = ReactDOMServer.renderToString(<Icon />)
+console.log(svgText)
 
 const configs = {
-  icon: Icon,
+  // Any component should be ok as long as it's props respect className which is resizable by CSS
+  icon: (props: any) => (
+    <img
+      src={`data:image/svg+xml;base64,${btoa(svgText)}`}
+      {...props}
+    />
+  ),
   name: 'Dapp',
   path: '/dapp',
   children: [{
