@@ -25,7 +25,7 @@
     "@web3-react/torus-connector": "^6.1.9",
     "@web3-react/walletconnect-connector": "^6.2.4",
     "@web3-react/walletlink-connector": "^6.2.3",
-    "node-sass": "link:../node_modules/node-sass",
+    "sass": "link:../node_modules/sass",
     "react": "link:../node_modules/react",
     "react-dom": "link:../node_modules/react-dom",
     "react-router-dom": "^5.2.0",
