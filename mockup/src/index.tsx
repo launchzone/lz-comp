@@ -1,7 +1,7 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
 import { Web3ReactProvider } from '@web3-react/core'
-import DappComp from 'dapp-comp'
+import dapp from 'dapp-comp'
 import { ethers } from 'ethers'
 import { AppLayout } from "./components/AppLayout";
 import { BrowserRouter as Router} from 'react-router-dom';
@@ -17,7 +17,7 @@ ReactDOM.render(
   <React.StrictMode>
     <Web3ReactProvider getLibrary={getLibrary}>
       <Router>
-        <AppLayout component={DappComp} />
+        <AppLayout {...dapp} />
       </Router>
     </Web3ReactProvider>
   </React.StrictMode>

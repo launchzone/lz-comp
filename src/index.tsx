@@ -1,7 +1,19 @@
-import React, { useEffect } from 'react'
+import React from 'react'
+import ReactDOMServer from 'react-dom/server'
+import { ReactComponent as Icon } from './icon.svg'
 
-const DAPP_CONFIG = {
-  name: 'Dapp Name',
+const svgText = ReactDOMServer.renderToString(<Icon />)
+console.log(svgText)
+
+const configs = {
+  // Any component should be ok as long as it's props respect className which is resizable by CSS
+  icon: (props: any) => (
+    <img
+      src={`data:image/svg+xml;base64,${btoa(svgText)}`}
+      {...props}
+    />
+  ),
+  name: 'Dapp',
   path: '/dapp',
   children: [{
     name: 'Sub Menu 1',
@@ -12,23 +24,17 @@ const DAPP_CONFIG = {
   }],
 }
 
-export default ({
+const Component = ({
   theme,
   useWeb3React,
   useSubPage,
-  configDapp,
 }: {
   theme: string
   useWeb3React: any
   useSubPage: any
-  configDapp?: any
 }) => {
   const { account } = useWeb3React()
   const subPage = useSubPage()
-
-  useEffect(() => {
-    configDapp(DAPP_CONFIG)
-  }, [])
 
   return (
     <div
@@ -39,9 +45,14 @@ export default ({
         color: theme === 'dark' ? '#FFFFFF' : '#000000'
       }}
     >
-      <p>{DAPP_CONFIG.name}</p>
+      <p>{configs.name}</p>
       <p>Path: {subPage}</p>
       <p>Account: {account}</p>
     </div>
   )
+}
+
+export default {
+  configs,
+  Component,
 }
