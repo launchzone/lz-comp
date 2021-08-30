@@ -16,7 +16,7 @@
     "build": "microbundle-crl --format modern,cjs --css-modules false",
     "start": "microbundle-crl --format modern,cjs --css-modules false --no-compress watch",
     "watch": "microbundle-crl --format modern,cjs --css-modules false --no-compress watch",
-    "prepare": "cd mockup && yarn",
+    "prepare": "run-s build",
     "test": "run-s test:unit test:lint test:build",
     "test:build": "run-s build",
     "test:lint": "eslint .",
