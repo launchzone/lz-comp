@@ -26,7 +26,8 @@
     "deploy": "gh-pages -d example/build"
   },
   "peerDependencies": {
-    "react": "^16.0.0"
+    "react": "^16.13.1",
+    "react-dom": "^16.13.1"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^4.2.4",
@@ -54,8 +55,6 @@
     "gh-pages": "^2.2.0",
     "npm-run-all": "^4.1.5",
     "prettier": "^2.0.4",
-    "react": "^16.13.1",
-    "react-dom": "^16.13.1",
     "react-redux": "^7.2.4",
     "redux": "^4.1.0",
     "redux-thunk": "^2.3.0",
@@ -63,7 +62,7 @@
     "typescript": "^3.7.5",
     "@web3-react/core": "^6.1.9",
     "ethers": "^5.2.0",
-    "node-sass": "^4.14.1",
+    "sass": "^1.38.2",
     "sass-loader": "^12.1.0"
   },
   "files": [
