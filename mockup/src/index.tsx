@@ -1,7 +1,7 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
 import { Web3ReactProvider } from '@web3-react/core'
-import dapp from 'dapp-comp'
+import configs from 'dapp-comp/dist/configs'
 import { ethers } from 'ethers'
 import { AppLayout } from "./components/AppLayout";
 import { BrowserRouter as Router} from 'react-router-dom';
@@ -17,8 +17,16 @@ ReactDOM.render(
   <React.StrictMode>
     <Web3ReactProvider getLibrary={getLibrary}>
       <Router>
-        <AppLayout {...dapp} />
+        <AppLayout
+          configs={configs}
+          Component={React.lazy(() => {
+            // @ts-ignore
+            import('dapp-comp/dist/component.css')
+            return import('dapp-comp/dist/component')
+          })}
+        />
       </Router>
     </Web3ReactProvider>
-  </React.StrictMode>
-, document.getElementById('root'))
+  </React.StrictMode>,
+  document.getElementById('root')
+)

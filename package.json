@@ -13,9 +13,11 @@
   "scripts": {
     "mockup:watch": "cd mockup && run-s watch",
     "mockup:build": "cd mockup && run-s build",
-    "build": "microbundle-crl --format modern,cjs --css-modules false",
-    "start": "microbundle-crl --format modern,cjs --css-modules false --no-compress watch",
-    "watch": "microbundle-crl --format modern,cjs --css-modules false --no-compress watch",
+    "build:configs": "microbundle-crl --entry src/configs.tsx --output dist/configs.js --format modern,cjs --css-modules false",
+    "build:component": "microbundle-crl --entry src/component.tsx --output dist/component.js --format modern,cjs --css-modules false --no-compress",
+    "build": "yarn build:configs && yarn build:component",
+    "start": "yarn build:configs && microbundle-crl --entry src/component.tsx --output dist/component.js --format modern,cjs --css-modules false --no-compress watch",
+    "watch": "yarn build:configs && microbundle-crl --entry src/component.tsx --output dist/component.js --format modern,cjs --css-modules false --no-compress watch",
     "prepare": "run-s build",
     "test": "run-s test:unit test:lint test:build",
     "test:build": "run-s build",
@@ -26,8 +28,8 @@
     "deploy": "gh-pages -d example/build"
   },
   "peerDependencies": {
-    "react": "^16.13.1",
-    "react-dom": "^16.13.1"
+    "react": "^17.0.0",
+    "react-dom": "^17.0.0"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^4.2.4",

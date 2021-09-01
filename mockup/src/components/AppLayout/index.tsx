@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { Suspense, useEffect, useState } from 'react'
 import { useWeb3React } from '@web3-react/core'
 import './style.scss'
 import '../../styles/main.scss'
@@ -94,13 +94,13 @@ export const AppLayout = (props: any) => {
             </div>
         </aside>
         <section className='layout'>
-            <main className='main container'>
+            <Suspense fallback={null}>
                 <Component
                     theme={theme}
                     useWeb3React={useWeb3React}
                     useSubPage={() => location.pathname}
                 />
-            </main>
+            </Suspense>
         </section>
         <Web3ReactModal
             visible={visibleWalletModal}
