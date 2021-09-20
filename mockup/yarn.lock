@@ -1885,6 +1885,11 @@
   dependencies:
     "@types/node" "*"
 
+"@types/cross-storage@^0.8.30":
+  version "0.8.30"
+  resolved "https://registry.yarnpkg.com/@types/cross-storage/-/cross-storage-0.8.30.tgz#07713e3d84f896e0ef479854aa7ed9d72f0ab2cc"
+  integrity sha512-bnW3xTNYIkblokN9iPlf26PhlHhrDxusp96NiM3O/WswjO7yrV1orjbK9Ips90Zl4gx1cU4HtJdpLkpbYBkCtA==
+
 "@types/eslint-visitor-keys@^1.0.0":
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/@types/eslint-visitor-keys/-/eslint-visitor-keys-1.0.0.tgz#1ee30d79544ca84d68d4b3cdb0af4f205663dd2d"
@@ -2018,8 +2023,13 @@
     csstype "^3.0.2"
 
 "@types/react@^16":
-  version "0.0.0"
-  uid ""
+  version "16.14.15"
+  resolved "https://registry.yarnpkg.com/@types/react/-/react-16.14.15.tgz#95d8fa3148050e94bcdc5751447921adbe19f9e6"
+  integrity sha512-jOxlBV9RGZhphdeqJTCv35VZOkjY+XIEY2owwSk84BNDdDv2xS6Csj6fhi+B/q30SR9Tz8lDNt/F2Z5RF3TrRg==
+  dependencies:
+    "@types/prop-types" "*"
+    "@types/scheduler" "*"
+    csstype "^3.0.2"
 
 "@types/react@link:../node_modules/@types/react":
   version "0.0.0"
@@ -4268,6 +4278,11 @@ cross-spawn@^6.0.0, cross-spawn@^6.0.5:
     semver "^5.5.0"
     shebang-command "^1.2.0"
     which "^1.2.9"
+
+cross-storage@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/cross-storage/-/cross-storage-1.0.0.tgz#70950377241484f17ce9559b05d2e08448e17660"
+  integrity sha1-cJUDdyQUhPF86VWbBdLghEjhdmA=
 
 crypto-browserify@^3.11.0:
   version "3.12.0"
