@@ -10,6 +10,8 @@ import { UserWalletModal } from '../UserWalletModal'
 import { shortenAddressString, weiToNumber } from '../../utils/helpers'
 import { Menu } from '../Menu'
 import { useLocation } from 'react-router-dom'
+import { ethers } from 'ethers'
+const CrossStorageClient = require('cross-storage').CrossStorageClient
 
 const LS_CONNECTOR = 'web3connector'
 const LS_THEME = 'theme'
@@ -22,6 +24,29 @@ export const AppLayout = (props: any) => {
     const [theme, setTheme] = useState<any>()
     const location = useLocation()
     const { configs, Component } = props
+    const [xStorageClient, setXStorageClient] = useState<typeof CrossStorageClient>(undefined)
+
+    useEffect(() => {
+        if (!process.env.REACT_APP_X_STORAGE_URL) {
+          return
+        }
+        const storage = new CrossStorageClient(process.env.REACT_APP_X_STORAGE_URL)
+        storage
+            .onConnect()
+            .then(() => {
+                setXStorageClient(storage)
+            })
+            .then(() => {
+                console.log('x-storage', 'connected', process.env.REACT_APP_X_STORAGE_URL)
+                const refAddress = (new URLSearchParams(location.search)).get('r')
+                if (refAddress) {
+                  const formalizedAddress = ethers.utils.getAddress(refAddress)
+                  return storage.set('LZ_REFERRAL', formalizedAddress)
+                    .then(() => console.log('x-storage', 'LZ_REFERRAL', formalizedAddress))
+                }
+            })
+            .catch(console.error)
+    }, [process.env.REACT_APP_X_STORAGE_URL])
 
     useEffect(() => {
         const initTheme = localStorage.getItem(LS_THEME)
@@ -99,6 +124,7 @@ export const AppLayout = (props: any) => {
                     theme={theme}
                     useWeb3React={useWeb3React}
                     useSubPage={() => location.pathname}
+                    xStorageClient={xStorageClient}
                 />
             </Suspense>
         </section>
