@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { ethers } from 'ethers'
 import abiBroker from '../abi/Broker.abi.json'
 import './component.scss'
@@ -47,7 +47,32 @@ export default ({
   const [valueOutMin, setValueOutMin] = useLocalStorage<Number>('valueOutMin', 1.24)
   const [deadline, setDeadline] = useLocalStorage<Number>('deadline', 10)
 
-  const handleCreate = async () => {
+  const [provider, setProvider] = useState<ethers.providers.Provider>()
+  const [signer, setSigner] = useState<ethers.providers.JsonRpcSigner>()
+  const [broker, setBroker] = useState<ethers.Contract>()
+
+  const BROKER = '0x11Db6ca65CB7E8854788Dd8D57D31695ba32d87c'
+
+  useEffect(() => {
+    if (!library?.provider) {
+      return
+    }
+    const provider = new ethers.providers.Web3Provider(library.provider);
+    setProvider(provider)
+    setSigner(provider.getSigner())
+
+    const broker = new ethers.Contract(BROKER, abiBroker, provider)
+    setBroker(broker)
+  }, [library])
+
+  useEffect(() => {
+
+  }, [tokenIn, ])
+
+  const handleCreate = async() => {
+    if (!signer || !broker) {
+      throw 'not connected'
+    }
     const order = {
       tokenIn: ethers.utils.getAddress(tokenIn),
       tokenOut: ethers.utils.getAddress(tokenOut),
@@ -72,18 +97,18 @@ export default ({
         {name: "deadline", type: "uint256"},
       ]
     }
-    const provider = new ethers.providers.Web3Provider(library.provider);
-    const signer = provider.getSigner()
     const rawSignature = await signer._signTypedData(domain, types, order)
     const signature = ethers.utils.splitSignature(rawSignature)
     console.log(rawSignature, signature)
 
-    const BROKER = '0x11Db6ca65CB7E8854788Dd8D57D31695ba32d87c'
-    const broker = new ethers.Contract(BROKER, abiBroker, provider)
     const res = await broker.callStatic.fill(
       order,
       signature.v, signature.r, signature.s,
-      [],
+      [{
+        router: '0x10ED43C718714eb63d5aA57B78B54704E256024E',
+        amount: 0,
+        path: [order.tokenIn, order.tokenOut],
+      }],
       ZERO_HASH,
       ZERO_ADDRESS,
       ZERO_HASH,
