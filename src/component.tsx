@@ -90,6 +90,10 @@ export default ({
     return _TypedDataEncoder.hash(domain, types, order)
   }
 
+  function getOrderSlot(digest: string, maker: string, deadline: Number) {
+    return ethers.utils.solidityKeccak256(['bytes32', 'address', 'uint256'], [digest, maker, deadline])
+  }
+
   const handleCancel = async() => {
     if (!signer || !broker) {
       throw 'not connected'
