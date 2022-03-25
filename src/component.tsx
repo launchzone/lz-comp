@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { ethers } from 'ethers'
+import { _TypedDataEncoder } from "@ethersproject/hash";
 import abiBroker from '../abi/Broker.abi.json'
 import './component.scss'
 
@@ -31,6 +32,22 @@ function useLocalStorage<T>(keyName: string, defaultValue: T) {
 
   return [storedValue, setValue];
 };
+
+const domain = {
+  name: 'Broker',
+  version: '1',
+  chainId: 56,
+  verifyingContract: '0x11Db6ca65CB7E8854788Dd8D57D31695ba32d87c',
+}
+const types = {
+  Order: [
+    {name: "tokenIn", type: "address"},
+    {name: "tokenOut", type: "address"},
+    {name: "amountIn", type: "uint256"},
+    {name: "amountOutMin", type: "uint256"},
+    {name: "deadline", type: "uint256"},
+  ]
+}
 
 export default ({
   theme,
@@ -69,6 +86,31 @@ export default ({
 
   }, [tokenIn, ])
 
+  function getOrderDigest(order: Record<string, any>) {
+    return _TypedDataEncoder.hash(domain, types, order)
+  }
+
+  const handleCancel = async() => {
+    if (!signer || !broker) {
+      throw 'not connected'
+    }
+
+    const order = {
+      tokenIn: ethers.utils.getAddress(tokenIn),
+      tokenOut: ethers.utils.getAddress(tokenOut),
+      amountIn: ethers.utils.parseEther(String(valueIn)),
+      amountOutMin: ethers.utils.parseEther(String(valueOutMin)),
+      deadline: Math.floor(new Date().getTime() / 1000) + Math.floor(deadline * 60),
+    }
+
+    const digest = getOrderDigest(order)
+
+    const res = await broker.callStatic.cancel(digest, order.deadline)
+      .catch(err => console.error(err?.data?.message ?? err))
+
+    console.log(res)
+  }
+
   const handleCreate = async() => {
     if (!signer || !broker) {
       throw 'not connected'
@@ -78,25 +120,10 @@ export default ({
       tokenOut: ethers.utils.getAddress(tokenOut),
       amountIn: ethers.utils.parseEther(String(valueIn)),
       amountOutMin: ethers.utils.parseEther(String(valueOutMin)),
-      deadline: new Date().getTime() + Math.floor(deadline * 60),
+      deadline: Math.floor(new Date().getTime() / 1000) + Math.floor(deadline * 60),
     }
     console.log(order)
 
-    const domain = {
-      name: 'Broker',
-      version: '1',
-      chainId: 56,
-      verifyingContract: '0x11Db6ca65CB7E8854788Dd8D57D31695ba32d87c',
-    }
-    const types = {
-      Order: [
-        {name: "tokenIn", type: "address"},
-        {name: "tokenOut", type: "address"},
-        {name: "amountIn", type: "uint256"},
-        {name: "amountOutMin", type: "uint256"},
-        {name: "deadline", type: "uint256"},
-      ]
-    }
     const rawSignature = await signer._signTypedData(domain, types, order)
     const signature = ethers.utils.splitSignature(rawSignature)
     console.log(rawSignature, signature)
@@ -113,7 +140,7 @@ export default ({
       ZERO_ADDRESS,
       ZERO_HASH,
     ).catch(err => console.error(err?.data?.message ?? err))
-    
+
     console.log(res)
   }
 
@@ -125,7 +152,7 @@ export default ({
       <div><label>valueIn:<input type="text" value={valueIn} onChange={e => setValueIn(e.target.value)} /></label></div>
       <div><label>valueOutMin:<input type="text" value={valueOutMin} onChange={e => setValueOutMin(e.target.value)} /></label></div>
       <div><label>deadline:<input type="text" value={deadline} onChange={e => setDeadline(e.target.value)} /></label> minutes</div>
-      <div><button onClick={handleCreate}>Create</button></div>
+      <div><button onClick={handleCreate}>Create</button><button onClick={handleCancel}>Cancel</button></div>
     </div>
   )
 }
