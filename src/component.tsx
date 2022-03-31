@@ -39,13 +39,19 @@ const domain = {
   chainId: 56,
   verifyingContract: '0x11Db6ca65CB7E8854788Dd8D57D31695ba32d87c',
 }
-const types = {
+const orderTypes = {
   Order: [
     {name: "tokenIn", type: "address"},
     {name: "tokenOut", type: "address"},
     {name: "amountIn", type: "uint256"},
     {name: "amountOutMin", type: "uint256"},
     {name: "deadline", type: "uint256"},
+  ]
+}
+const deleteTypes = {
+  Cancel: [
+    {name: "action", type: "string"},
+    {name: "order", type: "bytes32"},
   ]
 }
 
@@ -78,7 +84,7 @@ export default ({
     setProvider(provider)
     setSigner(provider.getSigner())
 
-    const broker = new ethers.Contract(BROKER, abiBroker, provider)
+    const broker = new ethers.Contract(BROKER, abiBroker, provider.getSigner())
     setBroker(broker)
   }, [library])
 
@@ -86,12 +92,49 @@ export default ({
 
   }, [tokenIn, ])
 
-  function getOrderDigest(order: Record<string, any>) {
+  function getDigest(order: Record<string, any>, types: any = orderTypes) {
     return _TypedDataEncoder.hash(domain, types, order)
   }
 
   function getOrderSlot(digest: string, maker: string, deadline: Number) {
     return ethers.utils.solidityKeccak256(['bytes32', 'address', 'uint256'], [digest, maker, deadline])
+  }
+
+  function verifyDeleteOrder(value: Record<string, any>, signature: any) {
+    const digest = getDigest(value, deleteTypes)
+    const maker = ethers.utils.recoverAddress(digest, signature)
+    console.log('deleter', maker)
+    if (maker != account) {
+      throw 'INVALID DELETE SIGNATURE'
+    }
+  }
+
+  const handleDelete = async() => {
+    if (!signer || !broker) {
+      throw 'not connected'
+    }
+
+    const order = {
+      tokenIn: ethers.utils.getAddress(tokenIn),
+      tokenOut: ethers.utils.getAddress(tokenOut),
+      amountIn: ethers.utils.parseEther(String(valueIn)),
+      amountOutMin: ethers.utils.parseEther(String(valueOutMin)),
+      deadline: Math.floor(new Date().getTime() / 1000) + Math.floor(deadline * 60),
+    }
+
+    const digest = getDigest(order)
+    const slot = getOrderSlot(digest, account, order.deadline)
+
+    const deleteValue = {
+      action: 'CANCEL',
+      order: slot,
+    }
+
+    const rawSignature = await signer._signTypedData(domain, deleteTypes, deleteValue)
+    const signature = ethers.utils.splitSignature(rawSignature)
+    console.log(rawSignature, signature)
+
+    verifyDeleteOrder(deleteValue, signature)
   }
 
   const handleCancel = async() => {
@@ -107,12 +150,14 @@ export default ({
       deadline: Math.floor(new Date().getTime() / 1000) + Math.floor(deadline * 60),
     }
 
-    const digest = getOrderDigest(order)
+    const digest = getDigest(order)
 
-    const res = await broker.callStatic.cancel(digest, order.deadline)
-      .catch(err => console.error(err?.data?.message ?? err))
-
-    console.log(res)
+    try {
+      const res = await broker.cancel(digest, order.deadline)
+      console.log(res)
+    } catch(err) {
+      console.error(err?.data?.message ?? err)
+    }
   }
 
   const handleCreate = async() => {
@@ -128,7 +173,7 @@ export default ({
     }
     console.log(order)
 
-    const rawSignature = await signer._signTypedData(domain, types, order)
+    const rawSignature = await signer._signTypedData(domain, orderTypes, order)
     const signature = ethers.utils.splitSignature(rawSignature)
     console.log(rawSignature, signature)
 
@@ -156,7 +201,11 @@ export default ({
       <div><label>valueIn:<input type="text" value={valueIn} onChange={e => setValueIn(e.target.value)} /></label></div>
       <div><label>valueOutMin:<input type="text" value={valueOutMin} onChange={e => setValueOutMin(e.target.value)} /></label></div>
       <div><label>deadline:<input type="text" value={deadline} onChange={e => setDeadline(e.target.value)} /></label> minutes</div>
-      <div><button onClick={handleCreate}>Create</button><button onClick={handleCancel}>Cancel</button></div>
+      <div>
+        <button onClick={handleCreate}>Create</button>
+        <button onClick={handleDelete}>Delete</button>
+        <button onClick={handleCancel}>Cancel</button>
+      </div>
     </div>
   )
 }
