@@ -1,11 +1,16 @@
 import React, { useEffect, useState } from 'react'
 import { ethers } from 'ethers'
 import { _TypedDataEncoder } from "@ethersproject/hash";
-import abiBroker from '../abi/Broker.abi.json'
+import Broker from '../abi/Broker.json'
+import IERC20 from '../abi/IERC20.json'
 import './component.scss'
+const bn = ethers.BigNumber.from
+
+const BROKER = '0x45F19b5aBA58D83CF09923b7C861Be19bDe752A1'
 
 const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
 const ZERO_HASH =   '0x0000000000000000000000000000000000000000000000000000000000000000'
+const MAX_VALUE =   '0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF'
 
 function useLocalStorage<T>(keyName: string, defaultValue: T) {
   const [storedValue, setStoredValue] = React.useState(() => {
@@ -37,7 +42,7 @@ const domain = {
   name: 'Broker',
   version: '1',
   chainId: 56,
-  verifyingContract: '0x11Db6ca65CB7E8854788Dd8D57D31695ba32d87c',
+  verifyingContract: BROKER,
 }
 const orderTypes = {
   Order: [
@@ -64,6 +69,7 @@ export default ({
 }) => {
   const { account, library } = useWeb3React()
 
+  const [signedOrder, setSignedOrder] = useLocalStorage<any>('signedOrder', undefined)
   const [tokenIn, setTokenIn] = useLocalStorage<string>('tokenIn', '0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56')
   const [tokenOut, setTokenOut] = useLocalStorage<string>('tokenOut', '0x55d398326f99059fF775485246999027B3197955')
   const [valueIn, setValueIn] = useLocalStorage<Number>('valueIn', 1.23)
@@ -74,8 +80,6 @@ export default ({
   const [signer, setSigner] = useState<ethers.providers.JsonRpcSigner>()
   const [broker, setBroker] = useState<ethers.Contract>()
 
-  const BROKER = '0x11Db6ca65CB7E8854788Dd8D57D31695ba32d87c'
-
   useEffect(() => {
     if (!library?.provider) {
       return
@@ -84,7 +88,7 @@ export default ({
     setProvider(provider)
     setSigner(provider.getSigner())
 
-    const broker = new ethers.Contract(BROKER, abiBroker, provider.getSigner())
+    const broker = new ethers.Contract(BROKER, Broker.abi, provider.getSigner())
     setBroker(broker)
   }, [library])
 
@@ -93,11 +97,31 @@ export default ({
   }, [tokenIn, ])
 
   function getDigest(order: Record<string, any>, types: any = orderTypes) {
+    // console.error('DOMAIN_SEPARATOR', _TypedDataEncoder.hashDomain(domain))
     return _TypedDataEncoder.hash(domain, types, order)
   }
 
   function getOrderSlot(digest: string, maker: string, deadline: Number) {
     return ethers.utils.solidityKeccak256(['bytes32', 'address', 'uint256'], [digest, maker, deadline])
+  }
+
+  function verifyOrder(signedOrder: any) {
+    const { r, s, v, ...order } = signedOrder
+    const signature = { r, s, v }
+    const digest = getDigest(order, orderTypes)
+    const maker = ethers.utils.recoverAddress(digest, signature)
+    if (maker == ZERO_ADDRESS) {
+      throw 'INVALID ORDER SIGNATURE'
+    }
+    return maker
+  }
+
+  function getOrderMaker(signedOrder: any) {
+    try {
+      return verifyOrder(signedOrder)
+    } catch(err) {
+      return ZERO_ADDRESS
+    }
   }
 
   function verifyDeleteOrder(value: Record<string, any>, signature: any) {
@@ -164,6 +188,7 @@ export default ({
     if (!signer || !broker) {
       throw 'not connected'
     }
+
     const order = {
       tokenIn: ethers.utils.getAddress(tokenIn),
       tokenOut: ethers.utils.getAddress(tokenOut),
@@ -171,26 +196,83 @@ export default ({
       amountOutMin: ethers.utils.parseEther(String(valueOutMin)),
       deadline: Math.floor(new Date().getTime() / 1000) + Math.floor(deadline * 60),
     }
-    console.log(order)
+    console.log('order', order)
+
+    {
+      const c = new ethers.Contract(order.tokenIn, IERC20.abi, signer)
+      const balance = await c.callStatic.balanceOf(account)
+      if (balance.lt(order.amountIn)) {
+        throw `insufficient balance: ${balance.toString()} < ${order.amountIn.toString()}`
+      }
+      const allowance = await c.callStatic.allowance(account, BROKER)
+      if (allowance.lt(order.amountIn)) {
+        console.error(`insufficient allowance: ${allowance.toString()} < ${order.amountIn.toString()}`)
+        return await c.approve(BROKER, MAX_VALUE)
+      }
+    }
 
     const rawSignature = await signer._signTypedData(domain, orderTypes, order)
     const signature = ethers.utils.splitSignature(rawSignature)
     console.log(rawSignature, signature)
 
-    const res = await broker.callStatic.fill(
-      order,
-      signature.v, signature.r, signature.s,
+    const signedOrder = {
+      ...order,
+      r: signature.r,
+      s: signature.s,
+      v: signature.v,
+    }
+
+    console.log('signedOrder', signedOrder)
+
+    const parsedOrder = await broker.callStatic.parseOrder(signedOrder)
+    if (parsedOrder.maker != account) {
+      console.error('parsedOrder', parsedOrder)
+      throw 'invalid signature'
+    }
+
+    setSignedOrder(signedOrder)
+  }
+
+  const handleFill = async() => {
+    if (!signer || !broker || !signedOrder) {
+      throw 'not connected'
+    }
+    if (!signedOrder) {
+      throw 'not signed'
+    }
+    const maker = verifyOrder(signedOrder)
+    if (maker == account) {
+      throw 'maker cannot be the same with relayer'
+    }
+    console.log('maker', maker)
+    const { r, s, v, ...order } = signedOrder
+
+    {
+      const c = new ethers.Contract(order.tokenOut, IERC20.abi, signer)
+      const allowance = await c.callStatic.allowance(account, BROKER)
+      if (allowance.lt(order.amountIn)) {
+        console.error(`insufficient allowance: ${allowance.toString()} < ${order.amountIn.toString()}`)
+        return await c.approve(BROKER, MAX_VALUE)
+      }
+    }
+
+    const profit = await broker.callStatic.fill(
+      signedOrder,
       [{
-        router: '0x10ED43C718714eb63d5aA57B78B54704E256024E',
-        amount: 0,
-        path: [order.tokenIn, order.tokenOut],
+        amount: order.amountIn,
+        steps: [[
+          '0x10ED43C718714eb63d5aA57B78B54704E256024E', // pancake2 router
+          order.tokenIn,
+          '0x7EFaEf62fDdCCa950418312c6C91Aef321375A00', // entry: pairFor(BUSD, USDT)
+          order.tokenOut,
+          account,  // exit: recipient
+        ]],
       }],
-      ZERO_HASH,
       ZERO_ADDRESS,
       ZERO_HASH,
     ).catch(err => console.error(err?.data?.message ?? err))
 
-    console.log(res)
+    console.error('profit', profit.toString())
   }
 
   return (
@@ -205,6 +287,7 @@ export default ({
         <button onClick={handleCreate}>Create</button>
         <button onClick={handleDelete}>Delete</button>
         <button onClick={handleCancel}>Cancel</button>
+        { signedOrder && ![ZERO_ADDRESS, account].includes(getOrderMaker(signedOrder)) && <button onClick={handleFill}>Fill</button> }
       </div>
     </div>
   )
